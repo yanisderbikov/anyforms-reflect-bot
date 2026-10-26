@@ -13,8 +13,11 @@ logger = logging.getLogger(__name__)
 
 
 class ReportOutcome(Enum):
-    SAVED = "saved"
-    IGNORED = "ignored"
+    """Значение — причина для лога."""
+    SAVED = "записан"
+    ALREADY_REPORTED = "отчёт за день уже есть — обычная переписка"
+    TOO_SHORT = "короче минимума — не отчёт"
+    UNKNOWN_EDIT = "правка не отчёта или без изменений"
 
 
 class ReportService(Reloadable, HealthIndicator):
@@ -37,8 +40,9 @@ class ReportService(Reloadable, HealthIndicator):
         self._ledger.rebuild(reports)
 
     def submit(self, account: Account, message: IncomingMessage) -> ReportOutcome:
-        if not self._accepts(account, message):
-            return ReportOutcome.IGNORED
+        outcome = self._check(account, message)
+        if outcome is not ReportOutcome.SAVED:
+            return outcome
         report = Report.from_message(account, message)
         self._repository.save(report)
         self._ledger.record(report)
@@ -62,9 +66,11 @@ class ReportService(Reloadable, HealthIndicator):
     def health(self) -> dict:
         return {"saved": self._saved, "reported_today": self.reported_today()}
 
-    def _accepts(self, account: Account, message: IncomingMessage) -> bool:
+    def _check(self, account: Account, message: IncomingMessage) -> ReportOutcome:
         if message.is_edit:
-            return self._ledger.is_new_edit(message)
+            return ReportOutcome.SAVED if self._ledger.is_new_edit(message) else ReportOutcome.UNKNOWN_EDIT
         if self.has_reported(account.username, message.sent_at.date()):
-            return False  # отчёт за день уже есть — дальше обычная переписка
-        return len(message.text.strip()) >= self._min_chars
+            return ReportOutcome.ALREADY_REPORTED
+        if len(message.text.strip()) < self._min_chars:
+            return ReportOutcome.TOO_SHORT
+        return ReportOutcome.SAVED

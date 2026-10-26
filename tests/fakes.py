@@ -64,6 +64,7 @@ class RecordingMessenger(Messenger):
         self.sent: list[tuple] = []
         self.reactions: list[tuple] = []
         self.reactions_forbidden = False
+        self.privacy_mode = False
 
     def send_message(self, chat_id, text, reply_to=None) -> None:
         self.sent.append((chat_id, text, reply_to))
@@ -75,6 +76,9 @@ class RecordingMessenger(Messenger):
 
     def bot_username(self) -> str:
         return "reflect_bot"
+
+    def reads_group_messages(self) -> bool:
+        return not self.privacy_mode
 
     @property
     def last_text(self) -> str:

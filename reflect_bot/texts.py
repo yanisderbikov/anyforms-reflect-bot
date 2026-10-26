@@ -73,9 +73,14 @@ class BotTexts:
 
     @staticmethod
     def synced(result: SyncResult) -> str:
-        return (f"🔄 Таблица перечитана\nАккаунтов: {result.accounts}\n"
+        text = (f"🔄 Таблица перечитана\nАккаунтов: {result.accounts}\n"
                 f"Чат: {result.chat_id or 'не задан (лист «Настройки»)'}\n"
                 f"Сдали сегодня: {result.reported_today}")
+        if not result.reads_group_messages:
+            text += ("\n\n⚠️ Включён privacy mode: в группе я вижу только команды, отчёты до меня не доходят. "
+                     "@BotFather → /setprivacy → выбрать бота → Disable, потом удалить меня из группы "
+                     "и добавить заново.")
+        return text
 
     @staticmethod
     def chat_id(chat_id: int) -> str:

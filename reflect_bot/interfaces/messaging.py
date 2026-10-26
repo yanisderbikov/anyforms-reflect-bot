@@ -11,6 +11,10 @@ class Messenger(ABC):
     @abstractmethod
     def bot_username(self) -> str: ...
 
+    @abstractmethod
+    def reads_group_messages(self) -> bool:
+        """False — включён privacy mode: из групп приходят только команды."""
+
 
 class UpdateSource(ABC):
     @abstractmethod

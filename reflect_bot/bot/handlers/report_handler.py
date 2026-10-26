@@ -38,7 +38,10 @@ class GroupReportHandler(MessageHandler):
                 self._messenger.send_message(message.chat_id, self._texts.report_not_saved(),
                                              reply_to=message.message_id)
             raise
-        if outcome is ReportOutcome.SAVED and not message.is_edit:
+        if outcome is not ReportOutcome.SAVED:
+            logger.info("сообщение @%s (%s симв.%s) не отчёт: %s", message.username, len(message.text),
+                        ", правка" if message.is_edit else "", outcome.value)
+        elif not message.is_edit:
             self._react(message)
 
     def _react(self, message: IncomingMessage) -> None:

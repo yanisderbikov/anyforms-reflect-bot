@@ -40,6 +40,10 @@ class TelegramBotApi(Messenger):
             self._username = self._call("getMe", {}).get("username", "")
         return self._username
 
+    def reads_group_messages(self) -> bool:
+        # Без кеша: privacy mode могут переключить в @BotFather на ходу
+        return bool(self._call("getMe", {}).get("can_read_all_group_messages"))
+
     def close(self) -> None:
         self._http.close()
 

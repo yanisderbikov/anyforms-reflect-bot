@@ -82,3 +82,18 @@ def test_users_shows_today_status(team):
     team.send("boss", "/users", ADMIN_DM)
     assert "✅ Белорус @ivan_bel" in team.messenger.last_text
     assert "⏳ Петя @petya" in team.messenger.last_text
+
+
+def test_skipped_group_messages_are_logged_with_reason(team, caplog):
+    caplog.set_level("INFO")
+    team.send("stranger", REPORT)
+    team.send("ivan_bel", REPORT, chat_id=-100555)
+    team.send("ivan_bel", "коротко")
+    team.send("ivan_bel", REPORT)
+    team.send("ivan_bel", REPORT)
+    log = caplog.text
+    assert "нет в листе «Аккаунты»" in log
+    assert "не группа отчётов" in log
+    assert "короче минимума" in log
+    assert "отчёт за день уже есть" in log
+    assert REPORT not in log  # текст отчётов в лог не пишем

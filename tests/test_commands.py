@@ -80,3 +80,11 @@ def test_super_admins_parsed_from_comma_separated_env():
                                   "GOOGLE_SERVICE_ACCOUNT_JSON": "{}",
                                   "SUPER_ADMIN_USERNAME": "@Yan, ivan_bel ,, @Petya"})
     assert settings.super_admins == {"yan", "ivan_bel", "petya"}
+
+
+def test_sync_warns_about_privacy_mode(team):
+    team.send("boss", "/sync", ADMIN_DM)
+    assert "privacy mode" not in team.messenger.last_text
+    team.messenger.privacy_mode = True
+    team.send("boss", "/sync", ADMIN_DM)
+    assert "Включён privacy mode" in team.messenger.last_text

@@ -11,6 +11,7 @@ from reflect_bot.bot.dispatcher import UpdateDispatcher
 from reflect_bot.bot.handlers.command_handler import CommandMessageHandler
 from reflect_bot.bot.handlers.private_handler import PrivateChatHandler
 from reflect_bot.bot.handlers.report_handler import GroupReportHandler
+from reflect_bot.bot.handlers.skipped_handler import SkippedMessageHandler
 from reflect_bot.bot.poller import LongPoller
 from reflect_bot.config import Settings
 from reflect_bot.infrastructure.runtime import MSK, LoggingAlerter, SerialExecutor, TelegramAlerter
@@ -40,7 +41,8 @@ class ApplicationContext:
         self.chat_settings = ChatSettingsService(infra.settings_repository)
         self.reports = ReportService(infra.report_repository, ReportLedger(), infra.clock,
                                      settings.min_report_chars)
-        self.sync = SyncService(self.accounts, self.chat_settings, self.reports, infra.clock)
+        self.sync = SyncService(self.accounts, self.chat_settings, self.reports, infra.messenger,
+                                infra.clock)
         self.reminders = ReminderService(self.accounts, self.reports, self.chat_settings,
                                          infra.messenger, infra.clock, self.texts)
 
@@ -49,6 +51,7 @@ class ApplicationContext:
                                   infra.messenger, self.texts),
             PrivateChatHandler(self.accounts, infra.messenger, self.texts),
             GroupReportHandler(self.accounts, self.chat_settings, self.reports, infra.messenger, self.texts),
+            SkippedMessageHandler(self.accounts, self.chat_settings),
         ])
         self.scheduler = DailyScheduler([
             ReminderJob(settings.remind_at, self.reminders),
