@@ -8,6 +8,8 @@ from reflect_bot.config import Settings
 
 settings = Settings.from_env()
 logging.basicConfig(level=settings.log_level, format="%(asctime)s %(levelname)s [%(name)s] %(message)s")
+# httpx на INFO пишет полный URL запроса, а в URL Bot API лежит токен
+logging.getLogger("httpx").setLevel(logging.WARNING)
 context = ApplicationContext(settings)
 
 
