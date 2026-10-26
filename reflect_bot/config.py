@@ -13,7 +13,7 @@ _REQUIRED = ("TELEGRAM_BOT_TOKEN", "SUPER_ADMIN_USERNAME", "GOOGLE_SHEET_ID", "G
 @dataclass(frozen=True)
 class Settings:
     bot_token: str
-    super_admin: str
+    super_admins: frozenset[str]
     sheet_id: str
     service_account_json: str
     alert_chat_id: str | None = None
@@ -30,9 +30,12 @@ class Settings:
         missing = [name for name in _REQUIRED if not env.get(name)]
         if missing:
             raise ConfigError(f"не заданы переменные окружения: {', '.join(missing)}")
+        super_admins = frozenset(filter(None, map(normalize_username, env["SUPER_ADMIN_USERNAME"].split(","))))
+        if not super_admins:
+            raise ConfigError("SUPER_ADMIN_USERNAME: ни одного ника")
         return cls(
             bot_token=env["TELEGRAM_BOT_TOKEN"],
-            super_admin=normalize_username(env["SUPER_ADMIN_USERNAME"]),
+            super_admins=super_admins,
             sheet_id=env["GOOGLE_SHEET_ID"],
             service_account_json=env["GOOGLE_SERVICE_ACCOUNT_JSON"],
             alert_chat_id=env.get("TELEGRAM_ALERT_CHAT_ID") or None,

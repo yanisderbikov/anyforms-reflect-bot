@@ -25,7 +25,7 @@ class Harness:
         self.settings_repo = InMemorySettingsRepository(chat_id=str(GROUP_ID))
         self.reports_repo = InMemoryReportRepository()
         self.source = ScriptedUpdateSource()
-        self.settings = Settings(bot_token="t", super_admin="boss", sheet_id="s", service_account_json="{}")
+        self.settings = Settings(bot_token="t", super_admins=frozenset({"boss", "deputy"}), sheet_id="s", service_account_json="{}")
         self._ids = itertools.count(100)
         self.reset_context()
 

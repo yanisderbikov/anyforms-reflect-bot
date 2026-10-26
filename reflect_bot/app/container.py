@@ -45,7 +45,7 @@ class ApplicationContext:
                                          infra.messenger, infra.clock, self.texts)
 
         self.dispatcher = UpdateDispatcher(UpdateParser(MSK), [
-            CommandMessageHandler(self._commands(infra), AccessPolicy(settings.super_admin),
+            CommandMessageHandler(self._commands(infra), AccessPolicy(settings.super_admins),
                                   infra.messenger, self.texts),
             PrivateChatHandler(self.accounts, infra.messenger, self.texts),
             GroupReportHandler(self.accounts, self.chat_settings, self.reports, infra.messenger, self.texts),

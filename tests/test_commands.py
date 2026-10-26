@@ -67,3 +67,16 @@ def test_chatid(team):
 def test_private_text_is_redirected_to_group(team):
     team.send("ivan_bel", "вот мой отчёт", USER_DM)
     assert team.messenger.last_text == "Отчёты сдаём в общей группе 🙂"
+
+
+def test_every_super_admin_from_env_can_manage(harness):
+    harness.send("deputy", "/add @petya Петя", ADMIN_DM)
+    assert harness.messenger.last_text == "✅ Петя @petya добавлен"
+
+
+def test_super_admins_parsed_from_comma_separated_env():
+    from reflect_bot.config import Settings
+    settings = Settings.from_env({"TELEGRAM_BOT_TOKEN": "t", "GOOGLE_SHEET_ID": "s",
+                                  "GOOGLE_SERVICE_ACCOUNT_JSON": "{}",
+                                  "SUPER_ADMIN_USERNAME": "@Yan, ivan_bel ,, @Petya"})
+    assert settings.super_admins == {"yan", "ivan_bel", "petya"}

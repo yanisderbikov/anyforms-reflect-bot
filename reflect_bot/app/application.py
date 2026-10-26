@@ -37,8 +37,9 @@ class Application:
     async def start(self) -> None:
         self._scheduler.skip_passed_slots()
         self._task = asyncio.create_task(self._run())
-        logger.info("reflect-bot стартует: супер-админ @%s, напоминание %s, проверка %s МСК по будням",
-                    self._settings.super_admin, self._settings.remind_at, self._settings.check_at)
+        logger.info("reflect-bot стартует: супер-админы %s, напоминание %s, проверка %s МСК по будням",
+                    ", ".join(f"@{u}" for u in sorted(self._settings.super_admins)),
+                    self._settings.remind_at, self._settings.check_at)
 
     async def stop(self) -> None:
         if self._task:
