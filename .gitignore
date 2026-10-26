@@ -1,0 +1,10 @@
+.idea/
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.pytest_cache/
+*.json.key
+service-account*.json
